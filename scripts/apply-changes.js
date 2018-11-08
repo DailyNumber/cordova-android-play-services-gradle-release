@@ -18,7 +18,7 @@ var deferral, fs, path, parser, platformVersion;
 
 
 function log(message) {
-    console.log(PLUGIN_NAME + ": " + message);
+    console.log(message);
 }
 
 function onError(error) {
@@ -44,16 +44,32 @@ function run() {
     platformVersion = getCordovaAndroidVersion();
     log("Android platform: " + platformVersion);
 
-    var data = fs.readFileSync(path.resolve(process.cwd(), 'config.xml'));
+    var configPath = path.resolve(process.cwd(), 'config.xml');
+    log("config path: " + configPath);
+    var data = fs.readFileSync(configPath);
     parser.parseString(data, attempt(function (err, result) {
         if (err) throw err;
+        log("result");
+        log(result);
+        log("result.widget");
+        log(result.widget);
+        log("result.widget.plugin");
+        log(result.widget.plugin);
         var version, plugins = result.widget.plugin;
-        for (var n = 0, len = plugins.length; n < len; n++) {
-            var plugin = plugins[n];
-            if (plugin.$.name === PLUGIN_NAME && plugin.variable && plugin.variable.length > 0) {
-                version = plugin.variable.pop().$.value;
-                break;
+        log("version " + version);
+        log("plugins");
+        log(plugins);
+        if (plugins) {
+            for (var n = 0, len = plugins.length; n < len; n++) {
+                var plugin = plugins[n];
+                if (plugin.$.name === PLUGIN_NAME && plugin.variable && plugin.variable.length > 0) {
+                    version = plugin.variable.pop().$.value;
+                    break;
+                }
             }
+        }
+        if (!version) {
+            version = '+';
         }
         if (version) {
             // build.gradle
